@@ -1,5 +1,6 @@
 import queue as qu
 import numpy as np
+from utils.logger import logger
 
 class RingBuffer:
 
@@ -12,7 +13,8 @@ class RingBuffer:
             return self.que.get_nowait()
         except qu.Empty:
             return None
-        except:
+        except Exception as e:
+            logger.error(e)
             return None
         
 
@@ -23,8 +25,9 @@ class RingBuffer:
             return None
         
         except qu.Full:
-            print("[!] Buffer is Full!")
+            logger.warn("[!] Buffer is Full!")
             return None
         
-        except:
+        except Exception as e:
+            logger.error(e)
             return None

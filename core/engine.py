@@ -4,24 +4,45 @@ from audio.input import AudioInput
 from audio.output import AudioOutput
 import threading, time
 
+from core.scheduler import Scheduler
+from core.audio_pipeline import AudioPipeline
+
+from utils.logger import logger
+
 class Engine:
 
     def __init__(self):
         """Loads the TOML config with the help of utils/config.py"""
 
-        self.Abuffer = RingBuffer(32)
-
-        self.mic =     AudioInput(self.Abuffer)
-        self.speaker = AudioOutput(self.Abuffer)
+        
+        #self.Abuffer = RingBuffer(32)
+        
+        self.Ibuffer = RingBuffer(32)
+        self.Obuffer = RingBuffer(32)
+        
 
         self.shutdown_event = threading.Event()
+
+        self.audioPipeline = AudioPipeline()
+        self.scheduler = Scheduler(
+            input_buffer=self.Ibuffer,
+            output_buffer=self.Obuffer,
+            audio_pipeline=self.audioPipeline,
+            shutdown_event=self.shutdown_event
+        )
+
+        self.mic =     AudioInput(self.Ibuffer)
+        self.speaker = AudioOutput(self.Obuffer)
+
+        
         
 
     def start(self):
-
-        self.mic.start()
+        self.scheduler.start()
+        
         self.speaker.start()
-        print("Mic Started....")
+        self.mic.start()
+        logger.info("Mic Started....")
 
     def stop(self):
         if self.shutdown_event.is_set():
@@ -29,7 +50,9 @@ class Engine:
         
         self.shutdown_event.set()
         self.mic.stop()
+        self.scheduler.stop()
         self.speaker.stop()
+        logger.close()
 
 
     def wait(self):
@@ -42,7 +65,7 @@ class Engine:
 
         except KeyboardInterrupt:
 
-            print("Stopping Threads.")
+            logger.fatal("Stopping Threads.")
             self.stop()
             
     

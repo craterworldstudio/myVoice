@@ -35,8 +35,10 @@ def main():
 
 import time
 from core.engine import Engine
+from utils.logger import logger
 
 def main():
+    logger.new()
     engine = Engine()
 
     engine.start()

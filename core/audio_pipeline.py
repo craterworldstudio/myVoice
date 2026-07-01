@@ -1,3 +1,5 @@
+from utils.logger import logger
+
 class AudioPipeline:
 
     def __init__(self):

@@ -1,5 +1,7 @@
 import sounddevice as sd
 import numpy as np
+from utils.logger import logger
+
 
 class AudioOutput:
 
@@ -12,7 +14,7 @@ class AudioOutput:
         
         self.buffer = buffer
         self.stream = sd.OutputStream(
-            device=9,
+            #device=9,
             samplerate=sample,
             blocksize=blockSize,
             channels=channels,
@@ -27,7 +29,7 @@ class AudioOutput:
     	status:    CallbackFlags object indicating errors like overflows.
     	"""
 
-        if status: print(status)
+        if status: logger.info(status)
 
         dataChunk = self.buffer.read()
 

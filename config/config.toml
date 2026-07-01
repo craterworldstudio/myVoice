@@ -1,6 +1,10 @@
 sample_rate = 48000
 block_size = 1024
-buffer_size = 32
+Rbuffer_size = 32
+channelInput = 1
+channelOutput = 2
 
 input_device = null
 output_device = null
+
+console_logging = true

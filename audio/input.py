@@ -1,4 +1,5 @@
 import sounddevice as sd
+from utils.logger import logger
 
 class AudioInput:
 
@@ -25,7 +26,7 @@ class AudioInput:
     	status:    CallbackFlags object indicating errors like overflows.
     	"""
 
-		if status: print(status)
+		if status: logger.info(status)
 
 		self.buffer.write(indata)
 
