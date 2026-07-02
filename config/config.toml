@@ -1,10 +1,19 @@
+[audio]
 sample_rate = 48000
 block_size = 1024
 Rbuffer_size = 32
+
+
+[device]
+input = ""
+output = ""
 channelInput = 1
 channelOutput = 2
 
-input_device = null
-output_device = null
-
+[system]
 console_logging = true
+
+[rvc]
+model = "./models/voice1/model.pth"
+index = "./models/voice1/model.index"
+pitch = 0

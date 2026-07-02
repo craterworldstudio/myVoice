@@ -2,10 +2,11 @@ import os
 import time, datetime
 
 class Logger:
-    def __init__(self, logdir=None):
+    def __init__(self, logdir=None, console_logging: bool = True):
         self.log_Dir = "./runtime/logs" if logdir in ("", None) else logdir
         self.opened = False
         self.c_file = None
+        self.console_logging = console_logging
 
         
 
@@ -43,7 +44,9 @@ class Logger:
         if not self.opened:
             return
         Rmsg = f"[{datetime.datetime.now().strftime('%H:%M:%S')}][{level}] {msg} \n"
-        print(Rmsg, end="")
+
+        if self.console_logging: print(Rmsg, end="")
+        
         self.c_file.write(Rmsg)
         self.c_file.flush()
 

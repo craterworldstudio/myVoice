@@ -1,7 +1,7 @@
 import sounddevice as sd
 import numpy as np
 from utils.logger import logger
-
+from utils.config import config
 
 class AudioOutput:
 

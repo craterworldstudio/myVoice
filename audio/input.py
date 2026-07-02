@@ -1,5 +1,6 @@
 import sounddevice as sd
 from utils.logger import logger
+from utils.config import config
 
 class AudioInput:
 

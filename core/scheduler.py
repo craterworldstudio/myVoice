@@ -1,5 +1,6 @@
 import threading, time
 from utils.logger import logger
+from utils.config import config
 
 class Scheduler:
     def __init__(self,

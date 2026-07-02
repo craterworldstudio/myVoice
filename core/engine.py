@@ -8,6 +8,7 @@ from core.scheduler import Scheduler
 from core.audio_pipeline import AudioPipeline
 
 from utils.logger import logger
+from utils.config import config
 
 class Engine:
 
@@ -17,8 +18,8 @@ class Engine:
         
         #self.Abuffer = RingBuffer(32)
         
-        self.Ibuffer = RingBuffer(32)
-        self.Obuffer = RingBuffer(32)
+        self.Ibuffer = RingBuffer(config.audio.Rbuffer_size)
+        self.Obuffer = RingBuffer(config.audio.Rbuffer_size)
         
 
         self.shutdown_event = threading.Event()
@@ -31,8 +32,18 @@ class Engine:
             shutdown_event=self.shutdown_event
         )
 
-        self.mic =     AudioInput(self.Ibuffer)
-        self.speaker = AudioOutput(self.Obuffer)
+        self.mic =     AudioInput(
+            self.Ibuffer, 
+            config.audio.sample_rate, 
+            config.device.channelInput,
+            config.audio.block_size
+            )
+        self.speaker = AudioOutput(
+            self.Obuffer,
+            config.audio.sample_rate, 
+            config.device.channelOutput,
+            config.audio.block_size,
+            )
 
         
         
