@@ -17,3 +17,12 @@ console_logging = true
 model = "./models/voice1/model.pth"
 index = "./models/voice1/model.index"
 pitch = 0
+
+[pipeline]
+stages = [
+    "gain",
+    "denoise",
+    "normalize",
+    "limiter",
+    
+]

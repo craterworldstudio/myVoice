@@ -25,7 +25,7 @@ class RingBuffer:
             return None
         
         except qu.Full:
-            logger.warn("[!] Buffer is Full!")
+            logger.warning("[!] Buffer is Full!")
             return None
         
         except Exception as e:

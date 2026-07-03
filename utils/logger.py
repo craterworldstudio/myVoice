@@ -19,7 +19,7 @@ class Logger:
 
     def new(self):
         if self.opened:
-            self.warn("Log file already in use.")
+            self.warning("Log file already in use.")
             return
         name = f"{datetime.date.today()}_{time.time()}"
         self.c_file = open(f"{self.log_Dir}/{name}.log", "a+")
@@ -29,8 +29,8 @@ class Logger:
     def info(self, Iptinfo):
         self._write("INFO", Iptinfo)
 
-    def warn(self, Iptwarn):
-        self._write("WARN", Iptwarn)
+    def warning(self, Iptwarning):
+        self._write("warning", Iptwarning)
 
     def error(self, Ipterr):
         self._write("ERROR", Ipterr)
