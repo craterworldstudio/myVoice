@@ -2,6 +2,8 @@ import threading, time
 from utils.logger import logger
 from utils.config import config
 
+from dsp.gain import Gain
+
 class Scheduler:
     def __init__(self,
                 input_buffer,
@@ -29,6 +31,24 @@ class Scheduler:
 
     def run(self):
         logger.info("Scheduler Running.")
+        
+        gain = Gain(gain=10.0)
+
+
+
+
+        self.audio_pipeline.add_stage(gain)
+
+
+
+
+        self.audio_pipeline.enable_stage(gain)
+
+
+
+
+        print(self.audio_pipeline.print_stages())
+
         while not self.shutdown_event.is_set():
             
             audio = self.input_buffer.read()
@@ -37,7 +57,7 @@ class Scheduler:
                 time.sleep(0.001)
                 continue
             
-
+            
             paudio = self.audio_pipeline.process(audio)
 
             self.output_buffer.write(paudio)

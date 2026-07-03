@@ -24,7 +24,7 @@ class Engine:
 
         self.shutdown_event = threading.Event()
 
-        self.audioPipeline = AudioPipeline()
+        self.audioPipeline = AudioPipeline(config.pipeline.stages)
         self.scheduler = Scheduler(
             input_buffer=self.Ibuffer,
             output_buffer=self.Obuffer,
