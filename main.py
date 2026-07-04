@@ -48,4 +48,5 @@ def main():
     engine.wait()
 
 if __name__ == "__main__":
+    print("Starting myVoice Engine...")
     main()

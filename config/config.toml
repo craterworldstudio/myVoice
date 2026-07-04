@@ -13,16 +13,20 @@ channelOutput = 2
 [system]
 console_logging = true
 
+[pipeline]
+stages = [
+    
+    "high_pass",
+    "low_pass",
+    "gain",
+    "limiter",
+]
+gain = 1.7782794
+hpf_cutoff = 100
+lpf_cutoff = 60000
+limiter = 0.70794576
+
 [rvc]
 model = "./models/voice1/model.pth"
 index = "./models/voice1/model.index"
 pitch = 0
-
-[pipeline]
-stages = [
-    "gain",
-    "denoise",
-    "normalize",
-    "limiter",
-    
-]

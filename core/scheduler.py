@@ -2,7 +2,6 @@ import threading, time
 from utils.logger import logger
 from utils.config import config
 
-from dsp.gain import Gain
 
 class Scheduler:
     def __init__(self,
@@ -32,18 +31,7 @@ class Scheduler:
     def run(self):
         logger.info("Scheduler Running.")
         
-        gain = Gain(gain=10.0)
-
-
-
-
-        self.audio_pipeline.add_stage(gain)
-
-
-
-
-        self.audio_pipeline.enable_stage(gain)
-
+        
 
 
 

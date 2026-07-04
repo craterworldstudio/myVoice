@@ -22,4 +22,4 @@ class ConfigManager:
 
 
 config = ConfigManager()
-print(config.audio.sample_rate)
+#print(config.audio.sample_rate)

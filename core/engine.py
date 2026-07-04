@@ -7,6 +7,10 @@ import threading, time
 from core.scheduler import Scheduler
 from core.audio_pipeline import AudioPipeline
 
+from dsp.gain import Gain
+from dsp.filters import HighPass, LowPass
+from dsp.limiter import Limiter
+
 from utils.logger import logger
 from utils.config import config
 
@@ -49,6 +53,8 @@ class Engine:
         
 
     def start(self):
+
+        self.build_pipeline()
         self.scheduler.start()
         
         self.speaker.start()
@@ -70,13 +76,47 @@ class Engine:
         
         try:
             
-            self.shutdown_event.wait()
+            while not self.shutdown_event.is_set():
+                #time.sleep(0.1)
+                pass
 
-            #while True: time.sleep(0.05)
+
 
         except KeyboardInterrupt:
 
             logger.fatal("Stopping Threads.")
             self.stop()
-            
+    
+
+    def build_pipeline(self):
+
+        self.gain = Gain(
+            gain=config.pipeline.gain
+            )
+        self.hpf = HighPass(
+            cutoff=config.pipeline.hpf_cutoff, 
+            sample_rate=config.audio.sample_rate
+            )
+        self.lpf = LowPass(
+            cutoff=config.pipeline.lpf_cutoff, 
+            sample_rate=config.audio.sample_rate
+            )
+        self.limiter = Limiter(
+            threshold=config.pipeline.limiter
+        )
+
+
+
+        self.audioPipeline.add_stage(self.gain)
+        self.audioPipeline.add_stage(self.hpf)
+        self.audioPipeline.add_stage(self.lpf)
+        self.audioPipeline.add_stage(self.limiter)
+
+
+
+        self.audioPipeline.enable_stage(self.gain)
+        self.audioPipeline.enable_stage(self.hpf)
+        self.audioPipeline.enable_stage(self.lpf)
+        self.audioPipeline.enable_stage(self.limiter)
+
     
