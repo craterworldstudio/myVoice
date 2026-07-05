@@ -55,5 +55,8 @@ class AudioPipeline:
             status = '✓' if stage.enabled else '✗'
             stages.append(f"[{status}] {stage.name}")
 
-        return stages
+        logger.info(f"<=========== Current Stage Track Order ===========>")
+        for stage in stages:
+            logger.info(stage)
+        #return stages
         #pass # ✗ ✓

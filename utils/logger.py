@@ -2,6 +2,26 @@ import os
 import time, datetime
 
 class Logger:
+
+    PURPLE = "\033[95m"
+    CYAN = "\033[96m"
+    GREEN = "\033[92m"
+    YELLOW = "\033[93m"
+    RED = "\033[91m"
+    BOLD_RED = "\033[1;91m"
+    RESET = "\033[0m"
+
+    # Map log levels to Dracula colors
+    COLORS = {
+        "INFO": GREEN,
+        "WARNING": YELLOW,
+        "ERROR": RED,
+        "FATAL": BOLD_RED,
+        "TERMINATE": PURPLE
+    }
+
+
+
     def __init__(self, logdir=None, console_logging: bool = True):
         self.log_Dir = "./runtime/logs" if logdir in ("", None) else logdir
         self.opened = False
@@ -30,7 +50,7 @@ class Logger:
         self._write("INFO", Iptinfo)
 
     def warning(self, Iptwarning):
-        self._write("warning", Iptwarning)
+        self._write("WARNING", Iptwarning)
 
     def error(self, Ipterr):
         self._write("ERROR", Ipterr)
@@ -43,12 +63,21 @@ class Logger:
     def _write(self, level, msg):
         if not self.opened:
             return
-        Rmsg = f"[{datetime.datetime.now().strftime('%H:%M:%S')}][{level}] {msg} \n"
-
-        if self.console_logging: print(Rmsg, end="")
+            
+        timestamp = datetime.datetime.now().strftime('%H:%M:%S')
         
-        self.c_file.write(Rmsg)
+        # 1. Plain text format for the actual .log file
+        file_msg = f"[{timestamp}][{level}] {msg} \n"
+        self.c_file.write(file_msg)
         self.c_file.flush()
+
+        # 2. Colorized text format purely for the live terminal display
+        if self.console_logging:
+            color = self.COLORS.get(level, self.RESET)
+            # Only wraps the level tag in color so the log message stays highly readable
+            console_msg = f"[{timestamp}][{color}{level}{self.RESET}] {msg} \n"
+            print(console_msg, end="")
+
 
     def close(self):
         self.info("------------------------------Log File Ending------------------------------")

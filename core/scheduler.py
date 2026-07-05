@@ -29,14 +29,10 @@ class Scheduler:
         self.thread.join()
 
     def run(self):
-        logger.info("Scheduler Running.")
-        
-        
+        logger.info("Scheduler Running!")
 
-
-
-        print(self.audio_pipeline.print_stages())
-
+        #print(self.audio_pipeline.print_stages())
+        self.audio_pipeline.print_stages()
         while not self.shutdown_event.is_set():
             
             audio = self.input_buffer.read()

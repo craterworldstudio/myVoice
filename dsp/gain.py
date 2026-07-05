@@ -11,3 +11,7 @@ class Gain(Stage):
     
     def set_gain(self, gain):
         self.gain = gain
+
+    def step_gain(self, audio, gain):
+        audio *= gain
+        return audio

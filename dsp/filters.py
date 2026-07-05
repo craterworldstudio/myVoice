@@ -75,3 +75,28 @@ class LowPass(Stage):
         dt = 1.0 / self.sample_rate
         return (dt/(rc+dt))
         
+
+class BandPass(Stage):
+    def __init__(self, low_cutoff, high_cutoff, sample_rate):
+        super().__init__("band_pass")
+        self.hpf = HighPass(low_cutoff, sample_rate)
+        self.lpf = LowPass(high_cutoff, sample_rate)
+
+    def process(self, audio):
+        # Series routing: Audio -> HPF -> LPF -> Output
+        hpf_filtered = self.hpf.process(audio)
+        bandpass_filtered = self.lpf.process(hpf_filtered)
+        return bandpass_filtered
+
+
+class BandStop(Stage):
+    def __init__(self, low_cutoff, high_cutoff, sample_rate):
+        super().__init__("band_stop")
+        self.lpf = LowPass(low_cutoff, sample_rate)  
+        self.hpf = HighPass(high_cutoff, sample_rate)
+
+    def process(self, audio):
+        low_part = self.lpf.process(audio)
+        high_part = self.hpf.process(audio)
+        
+        return low_part + high_part

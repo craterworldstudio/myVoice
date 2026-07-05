@@ -9,7 +9,7 @@ from core.audio_pipeline import AudioPipeline
 
 from dsp.gain import Gain
 from dsp.filters import HighPass, LowPass
-from dsp.limiter import Limiter
+from dsp.dynamic import Limiter, NoiseGate
 
 from utils.logger import logger
 from utils.config import config
@@ -58,6 +58,8 @@ class Engine:
         self.scheduler.start()
         
         self.speaker.start()
+
+        time.sleep(1)
         self.mic.start()
         logger.info("Mic Started....")
 
@@ -91,18 +93,26 @@ class Engine:
     def build_pipeline(self):
 
         self.gain = Gain(
-            gain=config.pipeline.gain
+            gain=  config.pipeline.gain
             )
         self.hpf = HighPass(
-            cutoff=config.pipeline.hpf_cutoff, 
-            sample_rate=config.audio.sample_rate
+            cutoff=      config.pipeline.hpf_cutoff, 
+            sample_rate= config.audio.sample_rate
             )
         self.lpf = LowPass(
-            cutoff=config.pipeline.lpf_cutoff, 
-            sample_rate=config.audio.sample_rate
+            cutoff=      config.pipeline.lpf_cutoff, 
+            sample_rate= config.audio.sample_rate
             )
+        self.ng = NoiseGate(
+            threshold=  config.pipeline.ng_threshold,
+            atk=        config.pipeline.ng_attack,
+            rls=        config.pipeline.ng_release,
+            samplerate= config.audio.sample_rate,
+            blocksize=  config.audio.block_size
+        )
         self.limiter = Limiter(
-            threshold=config.pipeline.limiter
+            threshold=  config.pipeline.limiter,
+            mode=       config.pipeline.limiter_mode
         )
 
 
@@ -111,12 +121,14 @@ class Engine:
         self.audioPipeline.add_stage(self.hpf)
         self.audioPipeline.add_stage(self.lpf)
         self.audioPipeline.add_stage(self.limiter)
+        self.audioPipeline.add_stage(self.ng)
 
 
 
         self.audioPipeline.enable_stage(self.gain)
         self.audioPipeline.enable_stage(self.hpf)
         self.audioPipeline.enable_stage(self.lpf)
+        self.audioPipeline.enable_stage(self.ng)
         self.audioPipeline.enable_stage(self.limiter)
 
     

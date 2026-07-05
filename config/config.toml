@@ -18,13 +18,19 @@ stages = [
     
     "high_pass",
     "low_pass",
+    "noisegate",
     "gain",
     "limiter",
 ]
 gain = 1.7782794
-hpf_cutoff = 100
+hpf_cutoff = 120
 lpf_cutoff = 60000
 limiter = 0.70794576
+limiter_mode = "Hard"
+ng_threshold = 0.03
+ng_attack = 0.2
+ng_release = 0.30
+
 
 [rvc]
 model = "./models/voice1/model.pth"
