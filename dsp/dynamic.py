@@ -20,6 +20,8 @@ class Limiter(Stage):
 
         if self.mode == self.modes[0]:
             np.clip(audio, -self.threshold, self.threshold, out=audio)
+            #audio = min(self.threshold, max(audio, -self.threshold))
+            return audio
         else:
             """
                 I need to mke a Soft Limiter, so here is the function defination,
@@ -43,9 +45,9 @@ class Limiter(Stage):
 
                 filtered[sample, 0] = y
             
-        #audio = min(self.threshold, max(audio, -self.threshold))
-        return filtered
-
+           
+            return filtered
+        
     def set_threshold(self, threshold):
         self.threshold = threshold
 
@@ -87,7 +89,6 @@ class NoiseGate(Stage):
 
         self.attack_step = 1/self.attack_blocks
         self.release_step = 1/self.release_blocks
-
 
     def process(self, audio):
         rms = math.sqrt(np.mean(audio[:, 0] ** 2))

@@ -10,6 +10,7 @@ from dsp.gain import Gain
 from dsp.filters import HighPass, LowPass
 from dsp.dynamic import Limiter, NoiseGate
 
+from dsp.normalize import Normalizer
 from utils.logger import logger
 from utils.config import config
 
@@ -90,45 +91,55 @@ class Engine:
     
 
     def build_pipeline(self):
-
+        
+        self.normalizerF = Normalizer(
+            target_level= config.pipeline.normalizer_threshold_f,
+            mode=         config.pipeline.normalizer_mode_f
+            )
+        self.normalizerB = Normalizer(
+            target_level= config.pipeline.normalizer_threshold_b,
+            mode=         config.pipeline.normalizer_mode_b
+            )
         self.gain = Gain(
-            gain=  config.pipeline.gain
+            gain=         config.pipeline.gain
             )
         self.hpf = HighPass(
-            cutoff=      config.pipeline.hpf_cutoff, 
-            sample_rate= config.audio.sample_rate
+            cutoff=       config.pipeline.hpf_cutoff, 
+            sample_rate=  config.audio.sample_rate
             )
         self.lpf = LowPass(
-            cutoff=      config.pipeline.lpf_cutoff, 
-            sample_rate= config.audio.sample_rate
+            cutoff=       config.pipeline.lpf_cutoff, 
+            sample_rate=  config.audio.sample_rate
             )
         self.ng = NoiseGate(
-            threshold=  config.pipeline.ng_threshold,
-            atk=        config.pipeline.ng_attack,
-            rls=        config.pipeline.ng_release,
-            samplerate= config.audio.sample_rate,
-            blocksize=  config.audio.block_size
+            threshold=    config.pipeline.noisegate_threshold,
+            atk=          config.pipeline.noisegate_attack,
+            rls=          config.pipeline.noisegate_release,
+            samplerate=   config.audio.sample_rate,
+            blocksize=    config.audio.block_size
         )
         self.limiter = Limiter(
-            threshold=  config.pipeline.limiter_threshold,
-            drive=      config.pipeline.limiter_drive,
-            mode=       config.pipeline.limiter_mode
+            threshold=    config.pipeline.limiter_threshold,
+            drive=        config.pipeline.limiter_drive,
+            mode=         config.pipeline.limiter_mode
         )
 
 
-
-        self.audioPipeline.add_stage(self.gain)
+        self.audioPipeline.add_stage(self.normalizerF)
         self.audioPipeline.add_stage(self.hpf)
         self.audioPipeline.add_stage(self.lpf)
         self.audioPipeline.add_stage(self.limiter)
         self.audioPipeline.add_stage(self.ng)
+        self.audioPipeline.add_stage(self.gain)
+        self.audioPipeline.add_stage(self.normalizerB)
 
 
-
-        self.audioPipeline.enable_stage(self.gain)
+        self.audioPipeline.enable_stage(self.normalizerF)
         self.audioPipeline.enable_stage(self.hpf)
         self.audioPipeline.enable_stage(self.lpf)
         self.audioPipeline.enable_stage(self.ng)
+        self.audioPipeline.enable_stage(self.gain)
         self.audioPipeline.enable_stage(self.limiter)
+        self.audioPipeline.enable_stage(self.normalizerB)
 
     

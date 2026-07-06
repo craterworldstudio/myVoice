@@ -15,22 +15,31 @@ console_logging = true
 
 [pipeline]
 stages = [
-    
+    "normalizer",
     "high_pass",
     "low_pass",
     "noisegate",
     "gain",
     "limiter",
+    "normalizer"
 ]
 gain = 1.7782794
+
 hpf_cutoff = 120
 lpf_cutoff = 60000
+
 limiter_threshold = 0.70794576
 limiter_drive = 0.6
 limiter_mode = "Soft"
-ng_threshold = 0.01
-ng_attack = 0.015
-ng_release = 0.125
+
+noisegate_threshold = 0.01
+noisegate_attack = 0.015
+noisegate_release = 0.125
+
+normalizer_threshold_f = 0.7
+normalizer_mode_f = "peak"
+normalizer_threshold_b = 0.7
+normalizer_mode_b = "peak"
 
 
 [rvc]
