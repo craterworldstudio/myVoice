@@ -5,8 +5,8 @@ import numpy as np
 from core.stage import Stage
 
 class Normalizer(Stage):
-    def __init__(self, target_level=0.8, mode="peak"):
-        super().__init__("normalizer")
+    def __init__(self, target_level=0.8, mode="peak", pos="" ):
+        super().__init__(f"normalizer{pos}")
         self.target_level = target_level
         self.modes = ["peak", "rms", "lufs"]
         self.mode = mode if mode in self.modes else "peak"

@@ -15,13 +15,14 @@ console_logging = true
 
 [pipeline]
 stages = [
-    "normalizer",
+    "normalizerF",
     "high_pass",
     "low_pass",
     "noisegate",
+    
     "gain",
     "limiter",
-    "normalizer"
+    "normalizerB"
 ]
 gain = 1.7782794
 
@@ -37,9 +38,9 @@ noisegate_attack = 0.015
 noisegate_release = 0.125
 
 normalizer_threshold_f = 0.7
-normalizer_mode_f = "peak"
+normalizer_mode_f = "rms"
 normalizer_threshold_b = 0.7
-normalizer_mode_b = "peak"
+normalizer_mode_b = "rms"
 
 
 [rvc]

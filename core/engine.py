@@ -94,11 +94,13 @@ class Engine:
         
         self.normalizerF = Normalizer(
             target_level= config.pipeline.normalizer_threshold_f,
-            mode=         config.pipeline.normalizer_mode_f
+            mode=         config.pipeline.normalizer_mode_f,
+            pos=          "F"
             )
         self.normalizerB = Normalizer(
             target_level= config.pipeline.normalizer_threshold_b,
-            mode=         config.pipeline.normalizer_mode_b
+            mode=         config.pipeline.normalizer_mode_b,
+            pos=          "B"
             )
         self.gain = Gain(
             gain=         config.pipeline.gain
@@ -134,12 +136,12 @@ class Engine:
         self.audioPipeline.add_stage(self.normalizerB)
 
 
-        self.audioPipeline.enable_stage(self.normalizerF)
+        #self.audioPipeline.enable_stage(self.normalizerF)
         self.audioPipeline.enable_stage(self.hpf)
         self.audioPipeline.enable_stage(self.lpf)
         self.audioPipeline.enable_stage(self.ng)
         self.audioPipeline.enable_stage(self.gain)
         self.audioPipeline.enable_stage(self.limiter)
-        self.audioPipeline.enable_stage(self.normalizerB)
+        #self.audioPipeline.enable_stage(self.normalizerB)
 
     
