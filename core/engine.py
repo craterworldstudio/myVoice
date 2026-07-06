@@ -1,4 +1,3 @@
-import sounddevice as sd
 from audio.ring_buffer import RingBuffer
 from audio.input import AudioInput
 from audio.output import AudioOutput
@@ -111,7 +110,8 @@ class Engine:
             blocksize=  config.audio.block_size
         )
         self.limiter = Limiter(
-            threshold=  config.pipeline.limiter,
+            threshold=  config.pipeline.limiter_threshold,
+            drive=      config.pipeline.limiter_drive,
             mode=       config.pipeline.limiter_mode
         )
 

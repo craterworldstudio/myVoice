@@ -3,20 +3,48 @@ import numpy as np
 import math
 
 class Limiter(Stage):
-    def __init__(self, threshold=1.0, mode=None):
+    def __init__(self, threshold=1.0, drive = 0.6, mode=None):
         super().__init__("limiter")
         self.threshold = threshold
+        self.drive = drive
         self.modes = ["Hard", "Soft"]
+        self.mode = self.modes[0] if mode == None else mode
+
+    def set_parameters(self, mode = None, threshold=None, drive=None):
+        self.threshold = threshold if threshold is not None else self.threshold
+        self.drive = drive if drive is not None else self.drive
         self.mode = self.modes[0] if mode == None else mode
 
     def process(self, audio):
         # Apply limiting to the audio signal
+
         if self.mode == self.modes[0]:
             np.clip(audio, -self.threshold, self.threshold, out=audio)
         else:
-            pass
+            """
+                I need to mke a Soft Limiter, so here is the function defination,
+                for x := small values, x(threshold)-x(current) = large,
+                f(x) = x,
+                for x := large valus, x(threshold)-x(current) = small,
+                f(x) = atan(x)
+
+
+
+                f(x) = (tanh((x/threshold) * drive)) * threshold
+                where ±threshold determines the vertical ceiling and
+                drive determines the softness.
+
+            """
+            filtered = np.zeros_like(audio)
+            for sample in range(len(audio)):
+                x = audio[sample, 0]
+
+                y = math.tanh((x/self.threshold) * self.drive) * self.threshold
+
+                filtered[sample, 0] = y
+            
         #audio = min(self.threshold, max(audio, -self.threshold))
-        return audio
+        return filtered
 
     def set_threshold(self, threshold):
         self.threshold = threshold

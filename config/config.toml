@@ -25,11 +25,12 @@ stages = [
 gain = 1.7782794
 hpf_cutoff = 120
 lpf_cutoff = 60000
-limiter = 0.70794576
-limiter_mode = "Hard"
-ng_threshold = 0.03
-ng_attack = 0.2
-ng_release = 0.30
+limiter_threshold = 0.70794576
+limiter_drive = 0.6
+limiter_mode = "Soft"
+ng_threshold = 0.01
+ng_attack = 0.015
+ng_release = 0.125
 
 
 [rvc]
