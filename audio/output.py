@@ -20,6 +20,8 @@ class AudioOutput:
             channels=channels,
             callback=self.callback
             )
+        self.playback_Buffer = np.empty((0, 1))
+        self.blockSize = blockSize
                       
     def callback(self, outdata, frames, time_info, status):
         """
@@ -32,10 +34,21 @@ class AudioOutput:
         if status: logger.info(status)
 
         dataChunk = self.buffer.read()
-
+        
         if dataChunk is None:
             outdata.fill(0)
             return
+        
+        self.playback_Buffer = np.concatenate((self.playback_Buffer, dataChunk ), axis=0)
+
+        if len(self.playback_Buffer) >= self.blockSize:
+            dataChunk = self.playback_Buffer[:self.blockSize]
+            self.playback_Buffer = self.playback_Buffer[self.blockSize:]
+        else:
+            outdata.fill(0)
+            return
+
+        
         
         outdata[:, 0] = dataChunk[:, 0] #L
         outdata[:, 1] = dataChunk[:, 0] #R

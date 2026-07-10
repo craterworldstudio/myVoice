@@ -44,7 +44,10 @@ class Scheduler:
             
             paudio = self.audio_pipeline.process(audio)
 
-            self.output_buffer.write(paudio)
+
+
+            if paudio is not None:
+                self.output_buffer.write(paudio)
             
 
         logger.info("Scheduler stopped.")    

@@ -8,12 +8,12 @@ class AudioPipeline:
         self.order = {name: index for index, name in enumerate(order)}
 
     def add_stage(self, stage):
-        
-        self.stages.append(stage)
-        self.stages.sort(key=lambda obj: self.order[obj.name])
-        stage.initialize()
-    
-        logger.error(f"Stage {stage.name} already in pipeline.")
+        if stage not in self.stages:
+            self.stages.append(stage)
+            self.stages.sort(key=lambda obj: self.order[obj.name])
+            stage.initialize()
+        else:
+            logger.error(f"Stage {stage.name} already in pipeline.")
 
 
     def remove_stage(self, stage):
@@ -45,7 +45,10 @@ class AudioPipeline:
         
         for stage in self.stages:
             audio = stage(audio)
-    
+
+            if audio is None:
+                return None
+            #print(stage.name, audio.shape)
         return audio
     
     def print_stages(self):

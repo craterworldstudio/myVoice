@@ -1,3 +1,5 @@
+import numpy as np
+
 from utils.logger import logger
 
 class Stage:
@@ -20,4 +22,5 @@ class Stage:
 
     def process(self, audio):
         logger.error("Subclasses must implement the process method.")
+
 

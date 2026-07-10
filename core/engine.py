@@ -1,6 +1,7 @@
 from audio.ring_buffer import RingBuffer
 from audio.input import AudioInput
 from audio.output import AudioOutput
+from audio.resampler import NResampler, PResampler
 import threading, time
 
 from core.scheduler import Scheduler
@@ -9,6 +10,7 @@ from core.audio_pipeline import AudioPipeline
 from dsp.gain import Gain
 from dsp.filters import HighPass, LowPass
 from dsp.dynamic import Limiter, NoiseGate
+
 
 from dsp.normalize import Normalizer
 from utils.logger import logger
@@ -111,7 +113,8 @@ class Engine:
             )
         self.lpf = LowPass(
             cutoff=       config.pipeline.lpf_cutoff, 
-            sample_rate=  config.audio.sample_rate
+            sample_rate=  config.audio.sample_rate,
+            anti_aliasing=False
             )
         self.ng = NoiseGate(
             threshold=    config.pipeline.noisegate_threshold,
@@ -120,28 +123,47 @@ class Engine:
             samplerate=   config.audio.sample_rate,
             blocksize=    config.audio.block_size
         )
+        
         self.limiter = Limiter(
             threshold=    config.pipeline.limiter_threshold,
             drive=        config.pipeline.limiter_drive,
             mode=         config.pipeline.limiter_mode
         )
+        self.resamplerF = PResampler(
+            csr=          config.audio.sample_rate,
+            tsr=          config.pipeline.rspl_target,
+            stage=        'F',
+            block_size=   config.audio.block_size
+        )
+        self.resamplerB = PResampler(
+            csr=          config.pipeline.rspl_target, 
+            tsr=          config.audio.sample_rate,
+            stage=        'B',
+            block_size=   config.audio.block_size
+        )
 
 
-        self.audioPipeline.add_stage(self.normalizerF)
+        #self.audioPipeline.add_stage(self.normalizerF)
         self.audioPipeline.add_stage(self.hpf)
         self.audioPipeline.add_stage(self.lpf)
         self.audioPipeline.add_stage(self.limiter)
         self.audioPipeline.add_stage(self.ng)
         self.audioPipeline.add_stage(self.gain)
-        self.audioPipeline.add_stage(self.normalizerB)
+        #self.audioPipeline.add_stage(self.aalpf)
+        self.audioPipeline.add_stage(self.resamplerF)
+        #self.audioPipeline.add_stage(self.normalizerB)
+        self.audioPipeline.add_stage(self.resamplerB)
 
 
         #self.audioPipeline.enable_stage(self.normalizerF)
         self.audioPipeline.enable_stage(self.hpf)
         self.audioPipeline.enable_stage(self.lpf)
         self.audioPipeline.enable_stage(self.ng)
+        #self.audioPipeline.enable_stage(self.aalpf)
         self.audioPipeline.enable_stage(self.gain)
         self.audioPipeline.enable_stage(self.limiter)
+        self.audioPipeline.enable_stage(self.resamplerF)
+        self.audioPipeline.enable_stage(self.resamplerB)
         #self.audioPipeline.enable_stage(self.normalizerB)
 
     

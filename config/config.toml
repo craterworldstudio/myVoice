@@ -21,8 +21,12 @@ stages = [
     "noisegate",
     
     "gain",
+
+    "aalp",
     "limiter",
-    "normalizerB"
+    "normalizerB",
+    "presamplerF",
+    "presamplerB"
 ]
 gain = 1.7782794
 
@@ -41,6 +45,9 @@ normalizer_threshold_f = 0.7
 normalizer_mode_f = "rms"
 normalizer_threshold_b = 0.7
 normalizer_mode_b = "rms"
+
+AALP_threshold = 15500
+rspl_target = 32000
 
 
 [rvc]

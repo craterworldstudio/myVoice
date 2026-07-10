@@ -42,7 +42,8 @@ class HighPass(Stage):
         return (rc/(rc+dt))
     
 class LowPass(Stage):
-    def __init__(self, cutoff, sample_rate):
+    def __init__(self, cutoff, sample_rate, anti_aliasing:bool=False):
+        name = "low_pass" if not anti_aliasing else "aalp"
         super().__init__("low_pass")
         self.cutoff = cutoff
         self.sample_rate = sample_rate
@@ -100,3 +101,24 @@ class BandStop(Stage):
         high_part = self.hpf.process(audio)
         
         return low_part + high_part
+
+
+class AntiAliasingLowPass(Stage):
+    def __init__(self, threadhold=8000, sample_rate=16000):
+        super().__init__("AALP")
+
+        self.threshold = threadhold
+        self.sample_rate = sample_rate
+
+        self.LP = LowPass(self.threshold, sample_rate)
+
+    def set_parameters(self, threshold, sample_rate):
+        self.threshold = threshold
+        self.sample_rate = sample_rate
+
+        self.LP.set_cutoff(threshold)
+
+    def process(self, audio):
+        
+        return self.LP.process(audio) 
+
