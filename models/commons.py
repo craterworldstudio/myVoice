@@ -21,7 +21,7 @@ def fused_add_tanh_sigmoid_multiply(a, b, channels):
     in_act = a + b
 
     in_tanh = torch.tanh(in_act[:, :channels_int, :])
-    in_sigmoid = torch.sigmoid(in_act[:, :channels_int, :])
+    in_sigmoid = torch.sigmoid(in_act[:, channels_int:, :])
 
     return in_tanh * in_sigmoid
 
