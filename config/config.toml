@@ -11,6 +11,7 @@ channelInput = 1
 channelOutput = 2
 
 [system]
+logging = false
 console_logging = true
 
 [pipeline]
@@ -26,6 +27,7 @@ stages = [
     "limiter",
     "normalizerB",
     "presamplerF",
+    "rvc",
     "presamplerB"
 ]
 gain = 1.7782794
@@ -51,6 +53,6 @@ rspl_target = 32000
 
 
 [rvc]
-model = "./models/voice1/model.pth"
-index = "./models/voice1/model.index"
+model = "./models/alastor/alastor.pth"
+index = "./models/alastor/alastor.index"
 pitch = 0

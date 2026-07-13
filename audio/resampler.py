@@ -89,5 +89,4 @@ class PResampler(Stage):
         #outputBlock = self.output_buffer[:len(audio)]
         #self.output_buffer = self.output_buffer[len(audio):]
         return audio
-            #print(audio.dtype)
-        return None
+        

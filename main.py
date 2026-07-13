@@ -4,6 +4,7 @@ from utils.logger import logger
 from utils.config import config
 
 def main():
+    logger.logging = config.system.logging
     logger.console_logging = config.system.console_logging
     logger.new()
     engine = Engine()

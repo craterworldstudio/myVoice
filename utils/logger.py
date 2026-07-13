@@ -22,10 +22,11 @@ class Logger:
 
 
 
-    def __init__(self, logdir=None, console_logging: bool = True):
+    def __init__(self, logdir=None, logging: bool = True, console_logging: bool = True):
         self.log_Dir = "./runtime/logs" if logdir in ("", None) else logdir
         self.opened = False
         self.c_file = None
+        self.logging = logging
         self.console_logging = console_logging
 
         
@@ -42,8 +43,9 @@ class Logger:
             self.warning("Log file already in use.")
             return
         name = f"{datetime.date.today()}_{time.time()}"
-        self.c_file = open(f"{self.log_Dir}/{name}.log", "a+")
-        self.opened = True
+        if self.logging:
+            self.c_file = open(f"{self.log_Dir}/{name}.log", "a+")
+            self.opened = True
         self.info("------------------------------Log File Starting------------------------------")
 
     def info(self, Iptinfo):
@@ -66,10 +68,11 @@ class Logger:
             
         timestamp = datetime.datetime.now().strftime('%H:%M:%S')
         
-        # 1. Plain text format for the actual .log file
-        file_msg = f"[{timestamp}][{level}] {msg} \n"
-        self.c_file.write(file_msg)
-        self.c_file.flush()
+        if self.logging:
+            # 1. Plain text format for the actual .log file
+            file_msg = f"[{timestamp}][{level}] {msg} \n"
+            self.c_file.write(file_msg)
+            self.c_file.flush()
 
         # 2. Colorized text format purely for the live terminal display
         if self.console_logging:
@@ -81,8 +84,9 @@ class Logger:
 
     def close(self):
         self.info("------------------------------Log File Ending------------------------------")
-        self.c_file.close()
-        self.c_file = None
+        if self.logging:
+            self.c_file.close()
+            self.c_file = None
         self.opened = False
 
 logger = Logger()

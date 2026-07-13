@@ -10,9 +10,10 @@ from core.audio_pipeline import AudioPipeline
 from dsp.gain import Gain
 from dsp.filters import HighPass, LowPass
 from dsp.dynamic import Limiter, NoiseGate
-
-
 from dsp.normalize import Normalizer
+
+from backend.rvc import RVC
+
 from utils.logger import logger
 from utils.config import config
 
@@ -141,6 +142,10 @@ class Engine:
             stage=        'B',
             block_size=   config.audio.block_size
         )
+        self.rvcbackend = RVC(
+            path_pth=         config.rvc.model
+
+        )
 
 
         #self.audioPipeline.add_stage(self.normalizerF)
@@ -151,6 +156,7 @@ class Engine:
         self.audioPipeline.add_stage(self.gain)
         #self.audioPipeline.add_stage(self.aalpf)
         self.audioPipeline.add_stage(self.resamplerF)
+        self.audioPipeline.add_stage(self.rvcbackend)
         #self.audioPipeline.add_stage(self.normalizerB)
         self.audioPipeline.add_stage(self.resamplerB)
 
@@ -163,6 +169,7 @@ class Engine:
         self.audioPipeline.enable_stage(self.gain)
         self.audioPipeline.enable_stage(self.limiter)
         self.audioPipeline.enable_stage(self.resamplerF)
+        self.audioPipeline.enable_stage(self.rvcbackend)
         self.audioPipeline.enable_stage(self.resamplerB)
         #self.audioPipeline.enable_stage(self.normalizerB)
 
