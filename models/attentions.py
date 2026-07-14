@@ -213,10 +213,10 @@ class FFN(nn.Module):
         self.drop = nn.Dropout(p_dropout)
 
 
-    def _get_padding(self, x, kernal_size):
-        if kernal_size == 1: return x
+    def _get_padding(self, x, kernel_size):
+        if kernel_size == 1: return x
 
-        pad = (kernal_size - 1)//2
+        pad = (kernel_size - 1)//2
 
         return F.pad(x, (pad, pad))
     

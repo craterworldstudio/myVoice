@@ -36,4 +36,11 @@ class RVCLoader:
             if key.startswith("flow."):
                 print(key)
         """
+
+
+
+        for key, value in self.weights.items():
+            if key.startswith("dec."):
+                print(key, value.shape)
+
         return self.model
