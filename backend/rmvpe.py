@@ -52,7 +52,7 @@ class RMVPE(ONNX_Model):
 
     def to_local_average_cents(self, salience, threshold=0.03):
         """
-        Decode the RMVPE salience map using local weighted averaging.
+        Decode the RMVPE salience map using local weighted averaging. nothing else...
         """
 
         center = np.argmax(salience, axis=1)

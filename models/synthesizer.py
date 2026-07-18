@@ -175,6 +175,7 @@ class SynthesizerTrn(nn.Module):
         phone,
         phone_lengths,
         pitch,
+        pitchf,
         sid,
     ):
         g = self.emb_g(sid).unsqueeze(-1)
