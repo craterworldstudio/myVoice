@@ -5,3 +5,6 @@ __pycache__/
 runtime/
 models/alastor/
 models/xiaomu
+models/vec-768-layer-12.onnx
+models/rmvpe.onnx
+models/rmvpe.pt

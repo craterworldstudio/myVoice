@@ -1,16 +1,16 @@
 import torch
+from models.synthesizer import SynthesizerTrn
 
 class RVCLoader:
 
-    def __init__(self, path_pth):
+    def __init__(self, path_pth, device):
         self.path_pth = path_pth
         self.model = None
+        self.device = device
 
-    def load(self):
+    def load(self):        
 
-        
-
-        self.model = torch.load(self.path_pth, map_location='cpu', weights_only=False)
+        self.model = torch.load(self.path_pth, map_location=self.device, weights_only=False)
 
         self.config  = self.model["config"]
         self.weights = self.model["weight"]
@@ -38,9 +38,18 @@ class RVCLoader:
         """
 
 
+        #print(self.config)
+        self.net_g = SynthesizerTrn(*self.config)
+        self.net_g.load_state_dict(self.weights, strict=True)
+        self.net_g.eval()
 
-        for key, value in self.weights.items():
-            if key.startswith("dec."):
-                print(key, value.shape)
+        self.net_g.to(self.device)
 
-        return self.model
+
+        return {
+            "net_g": self.net_g,
+            "sr": self.sr,
+            "f0": self.f0,
+            "version": self.version,
+            "vocoder": self.vocoder,
+        }

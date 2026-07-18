@@ -142,10 +142,7 @@ class Engine:
             stage=        'B',
             block_size=   config.audio.block_size
         )
-        self.rvcbackend = RVC(
-            path_pth=         config.rvc.model
-
-        )
+        self.rvcbackend = RVC()
 
 
         #self.audioPipeline.add_stage(self.normalizerF)

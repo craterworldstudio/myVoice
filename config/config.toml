@@ -53,6 +53,10 @@ rspl_target = 32000
 
 
 [rvc]
-model = "./models/alastor/alastor.pth"
-index = "./models/alastor/alastor.index"
-pitch = 0
+model      = "./models/alastor/alastor.pth"
+index      = "./models/alastor/alastor.index"
+vec        = "./models/vec-768-layer-12.onnx"
+rmvpe_onnx = "./models/rmvpe.onnx"
+rmvpe_pt   = "./models/rmvpe.pt"
+pitch      = 0
+use_onnx   = true
