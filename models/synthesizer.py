@@ -88,17 +88,17 @@ class TextEncoder(nn.Module):
 
     def forward(self, phone, pitch, lengths):
 
-        print("phone in encoder:", phone.shape)
-        print("pitch in encoder:", pitch.shape)
+        #print("phone in encoder:", phone.shape)
+        #print("pitch in encoder:", pitch.shape)
+                
         
         x = self.emb_phone(phone)
-        p = self.emb_pitch(pitch)
-        
-        print("phone emb:", x.shape)
-        print("pitch emb:", p.shape)
-
-        x = self.emb_phone(phone)
+        #print("phone emb:", x.shape)
         x = x + self.emb_pitch(pitch)
+
+        
+        #print("pitch emb:", x.shape)
+
 
         x = x.transpose(1, 2)
         x_mask = sequence_mask(lengths, x.size(2)).unsqueeze(1).to(dtype=x.dtype)
@@ -111,6 +111,10 @@ class TextEncoder(nn.Module):
         m, logs = torch.split(
             stats, [self.out_channels, self.out_channels], dim=1
         )
+        #print("TENC M ",m.min(), m.max())
+        #print("TENC LOGS ",logs.min(), logs.max())
+        #print("TENC M.ISNAN ",torch.isnan(m).any())
+        #print("TENC LOGS.ISNAN ",torch.isnan(logs).any())
 
         return x, m, logs, x_mask
 
@@ -193,8 +197,27 @@ class SynthesizerTrn(nn.Module):
         )
         o = self.dec(
             z * x_mask,
-            pitch,
+            pitchf,
             g=g
+        )
+
+        print("m_p", m_p.min(), m_p.max())
+        print("logs_p", logs_p.min(), logs_p.max())
+
+
+
+        print(
+            "Z:",
+            z.min().item(),
+            z.max().item(),
+            z.mean().item(),
+        )
+
+        print(
+            "OUT:",
+            o.min().item(),
+            o.max().item(),
+            o.mean().item(),
         )
 
         return o

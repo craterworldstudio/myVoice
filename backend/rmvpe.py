@@ -28,11 +28,25 @@ class RMVPE(ONNX_Model):
 
     def extract(self, audio):
 
+        audio = np.asarray(audio, dtype=np.float32)
+
+        if audio.ndim == 2 and audio.shape[1] == 1:
+            audio = audio.squeeze(1)
+
+
+
         mel = self.mel(audio)
     
         hidden = self._infer(mel)
 
         f0 = self.decode(hidden)
+        #print(
+        #    "RMVPE:",
+        #    f0.shape,
+        #    f0.min(),
+        #    f0.max(),
+        #    f0.mean()
+        #)
     
         return self.f0_to_coarse(f0), f0
     

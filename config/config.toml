@@ -49,7 +49,7 @@ normalizer_threshold_b = 0.7
 normalizer_mode_b = "rms"
 
 AALP_threshold = 15500
-rspl_target = 32000
+rspl_target = 16000
 
 
 [rvc]

@@ -1,3 +1,5 @@
+import numpy as np
+
 from utils.logger import logger
 
 class AudioPipeline:
@@ -45,6 +47,11 @@ class AudioPipeline:
         
         for stage in self.stages:
             audio = stage(audio)
+            #print(stage.name,
+            #    audio.dtype,
+            #    audio.shape,
+            #    audio.min(),
+            #    audio.max(), np.mean(audio))
 
             if audio is None:
                 return None

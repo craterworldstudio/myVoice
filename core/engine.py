@@ -132,17 +132,18 @@ class Engine:
         )
         self.resamplerF = PResampler(
             csr=          config.audio.sample_rate,
-            tsr=          config.pipeline.rspl_target,
+            tsr=          16000,
             stage=        'F',
             block_size=   config.audio.block_size
         )
+        self.rvcbackend = RVC()
         self.resamplerB = PResampler(
-            csr=          config.pipeline.rspl_target, 
+            csr=          self.rvcbackend.sr, 
             tsr=          config.audio.sample_rate,
             stage=        'B',
             block_size=   config.audio.block_size
         )
-        self.rvcbackend = RVC()
+        
 
 
         #self.audioPipeline.add_stage(self.normalizerF)
@@ -159,12 +160,12 @@ class Engine:
 
 
         #self.audioPipeline.enable_stage(self.normalizerF)
-        self.audioPipeline.enable_stage(self.hpf)
-        self.audioPipeline.enable_stage(self.lpf)
-        self.audioPipeline.enable_stage(self.ng)
+        #self.audioPipeline.enable_stage(self.hpf)
+        #self.audioPipeline.enable_stage(self.lpf)
+        #self.audioPipeline.enable_stage(self.ng)
         #self.audioPipeline.enable_stage(self.aalpf)
-        self.audioPipeline.enable_stage(self.gain)
-        self.audioPipeline.enable_stage(self.limiter)
+        #self.audioPipeline.enable_stage(self.gain)
+        #self.audioPipeline.enable_stage(self.limiter)
         self.audioPipeline.enable_stage(self.resamplerF)
         self.audioPipeline.enable_stage(self.rvcbackend)
         self.audioPipeline.enable_stage(self.resamplerB)

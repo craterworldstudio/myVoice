@@ -69,6 +69,7 @@ class PResampler(Stage):
         self.input_buffer  = np.empty((0, 1), dtype=np.float32)
 
         self.block_size = math.ceil(block_size * csr / tsr)
+        print("Resampler Block Size:", self.block_size)
         #self.output_buffer = np.empty()
 
     def process(self, audio):

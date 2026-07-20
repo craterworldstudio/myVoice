@@ -57,13 +57,14 @@ class ResBlock1(nn.Module):
 
 class SineGenerator(nn.Module):
 
-    def __init__(self, 
-                sample_rate,
-                harmonic_num=0,
-                sine_amp=0.1,
-                noise_std=0.003,
-                voiced_threshold=0
-                ):
+    def __init__(
+        self,
+        sample_rate,
+        harmonic_num=0,
+        sine_amp=0.1,
+        noise_std=0.003,
+        voiced_threshold=0,
+    ):
         super().__init__()
 
         self.sample_rate = sample_rate
@@ -72,38 +73,110 @@ class SineGenerator(nn.Module):
         self.noise_std = noise_std
         self.voiced_threshold = voiced_threshold
 
-    def _f0_to_uv(self, f0): # voiced/unvoiced
+        self.dim = harmonic_num + 1
+
+
+    def _f0_to_uv(self, f0):
         return (f0 > self.voiced_threshold).float()
-    
-    def _f0_to_sine(self, f0):
 
-        harmonic_numbers = torch.arange(
-            1, self.harmonic_num + 2, device=f0.device, dtype=f0.dtype
-        )
 
-        f0_buf = f0 * harmonic_numbers
-        phase_increment = f0_buf / self.sample_rate
+    def forward(self, f0, upp):
+        """
+        Parameters
+        ----------
+        f0 : (B,T)
+        upp : total upsampling factor (320)
+        """
 
-        phase = torch.cumsum(phase_increment, dim=1)
-        sine = torch.sin(2 * torch.pi * phase)
+        with torch.no_grad():
 
-        return sine
-    
+            f0 = f0[:, :, None]
 
-    def forward(self, f0):
-        uv = self._f0_to_uv(f0)
-        sine_waves = self._f0_to_sine(f0)
+            f0_buf = torch.zeros(
+                f0.size(0),
+                f0.size(1),
+                self.dim,
+                device=f0.device,
+                dtype=f0.dtype,
+            )
 
-        sine_waves = self.sine_amp * sine_waves
+            # Fundamental
+            f0_buf[:, :, 0] = f0[:, :, 0]
 
-        noise_amp = (
-            uv* self.noise_std + (1 - uv) * self.sine_amp / 3
-        )
+            # Harmonics
+            for i in range(self.harmonic_num):
+                f0_buf[:, :, i + 1] = f0[:, :, 0] * (i + 2)
 
-        noise = noise_amp * torch.randn_like(sine_waves)
+            # Cycles per frame
+            rad_values = (f0_buf / self.sample_rate) % 1.0
 
-        sine_waves = sine_waves * uv + noise
-        return sine_waves, uv, noise
+            # Random initial phase (except fundamental)
+            rand_ini = torch.rand(
+                f0_buf.size(0),
+                self.dim,
+                device=f0.device,
+                dtype=f0.dtype,
+            )
+
+            rand_ini[:, 0] = 0
+
+            rad_values[:, 0, :] += rand_ini
+
+            cumulative = torch.cumsum(rad_values, dim=1)
+
+            cumulative *= upp
+
+            cumulative = F.interpolate(
+                cumulative.transpose(1, 2),
+                scale_factor=float(upp),
+                mode="linear",
+                align_corners=True,
+            ).transpose(1, 2)
+
+            rad_values = F.interpolate(
+                rad_values.transpose(1, 2),
+                scale_factor=float(upp),
+                mode="nearest",
+            ).transpose(1, 2)
+
+            cumulative %= 1.0
+
+            overflow = (
+                cumulative[:, 1:, :] -
+                cumulative[:, :-1, :]
+            ) < 0
+
+            shift = torch.zeros_like(rad_values)
+
+            shift[:, 1:, :] = overflow * -1.0
+
+            sine = torch.sin(
+                torch.cumsum(
+                    rad_values + shift,
+                    dim=1
+                ) * (2 * torch.pi)
+            )
+
+            sine *= self.sine_amp
+
+            uv = self._f0_to_uv(f0)
+
+            uv = F.interpolate(
+                uv.transpose(1, 2),
+                scale_factor=float(upp),
+                mode="nearest",
+            ).transpose(1, 2)
+
+            noise_amp = (
+                uv * self.noise_std
+                + (1.0 - uv) * self.sine_amp / 3.0
+            )
+
+            noise = noise_amp * torch.randn_like(sine)
+
+            sine = sine * uv + noise
+
+        return sine, uv, noise
 
 
 class SourceModuleHnNSF(nn.Module):
@@ -130,10 +203,11 @@ class SourceModuleHnNSF(nn.Module):
         self.l_tanh = nn.Tanh()
 
 
-    def forward(self, f0):
-        sine_waves, uv, noise = self.sine_generator(f0)
+    def forward(self, f0, upp):
 
-        source = self.l_linear(sine_waves)
+        sine, uv, noise = self.sine_generator( f0, upp )
+
+        source = self.l_linear(sine)
         source = self.l_tanh(source)
 
         return source, noise, uv
@@ -266,14 +340,14 @@ class Generator(nn.Module):
         
 
 
-        f0 = F.interpolate(
+        """f0 = F.interpolate(
             f0.unsqueeze(1),
             scale_factor=self.upp, # changed self.upp = 320
             mode="linear",
             align_corners=False
-        ).transpose(1, 2)
+        ).transpose(1, 2) """
 
-        har_source, _, _ = self.m_source(f0)
+        har_source, _, _ = self.m_source(f0, self.upp)
         har_source = har_source.transpose(1, 2)
 
         x = self.conv_pre(x)
