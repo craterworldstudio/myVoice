@@ -20,14 +20,25 @@ class RingBuffer:
 
     def write(self, audioChunk):
         try:
-            return self.que.put_nowait(audioChunk)
-        except qu.Empty:
-            return None
-        
+            self.que.put_nowait(audioChunk)
         except qu.Full:
-            logger.warning("[!] Buffer is Full!")
-            return None
-        
+            try:
+                # Discard oldest chunk so buffer never lags behind live audio
+                self.que.get_nowait()
+            except qu.Empty:
+                pass
+            try:
+                self.que.put_nowait(audioChunk)
+            except Exception:
+                pass
         except Exception as e:
             logger.error(e)
-            return None
+
+    def clear(self):
+        while not self.que.empty():
+            try:
+                self.que.get_nowait()
+            except qu.Empty:
+                break
+            except Exception:
+                break

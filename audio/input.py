@@ -12,12 +12,25 @@ class AudioInput:
 				 ):
 		
 		self.buffer = buffer
+		device = getattr(config.device, "input", None)
+		if not device:
+			try:
+				devs = [d['name'] for d in sd.query_devices()]
+				if "pulse" in devs:
+					device = "pulse"
+				elif "default" in devs:
+					device = "default"
+			except Exception:
+				device = None
+
 		self.stream = sd.InputStream(
+			device=device,
 			samplerate=sample,
 			blocksize=blockSize,
 			channels=channels,
 			callback=self.callback
-			)
+		)
+
 
 	def callback(self, indata, frames, time_info, status):
 		"""

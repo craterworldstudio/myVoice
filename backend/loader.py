@@ -27,13 +27,13 @@ class RVCLoader:
         #    print(i)
 
         #print(self.weights.keys())
-        print(self.model["speakers_id"])
+        #print(self.model["speakers_id"])
 #
         #print(self.config)
         self.net_g = SynthesizerTrn(*self.config)
         missing, unexpected = self.net_g.load_state_dict(self.weights, strict=True)
-        print("Missing:", missing)
-        print("Unexpected:", unexpected)
+        #print("Missing:", missing)
+        #print("Unexpected:", unexpected)
         self.net_g.eval()
 
         self.net_g.to(self.device)

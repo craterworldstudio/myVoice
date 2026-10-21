@@ -1,8 +1,9 @@
-
 *.pyc
 
 __pycache__/
 runtime/
+venv/
+*.wav
 models/alastor/
 models/xiaomu
 models/vec-768-layer-12.onnx

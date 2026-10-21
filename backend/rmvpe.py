@@ -14,8 +14,14 @@ class RMVPE(ONNX_Model):
         self.rmvpe_pth = rmvpe_path
 
 
+        target_sr = 16000
+        try:
+            target_sr = config.dsp.resampler.rspl_target
+        except Exception:
+            pass
+
         self.mel = MelSpectrogram(
-            sample_rate=config.pipeline.rspl_target,
+            sample_rate=target_sr,
             n_fft=1024,
             hop_length=160,
             n_mels=128,
@@ -26,31 +32,25 @@ class RMVPE(ONNX_Model):
         cents = 20 * np.arange(360) + 1997.3794084376191
         self.cents_mapping = np.pad(cents, (4, 4))
 
-    def extract(self, audio):
+    def extract(self, audio, pitch_shift=0):
 
         audio = np.asarray(audio, dtype=np.float32)
 
         if audio.ndim == 2 and audio.shape[1] == 1:
             audio = audio.squeeze(1)
 
-
-
         mel = self.mel(audio)
     
         hidden = self._infer(mel)
-
         f0 = self.decode(hidden)
-        #print(
-        #    "RMVPE:",
-        #    f0.shape,
-        #    f0.min(),
-        #    f0.max(),
-        #    f0.mean()
-        #)
-    
+
+        if pitch_shift != 0:
+            f0 = f0 * (2.0 ** (pitch_shift / 12.0))
+
         return self.f0_to_coarse(f0), f0
+
     
-    def decode(self, hidden, threshold=0.03):
+    def decode(self, hidden, threshold=0.05):
         
 
         if hidden.ndim == 3:
@@ -64,7 +64,7 @@ class RMVPE(ONNX_Model):
         return f0
 
 
-    def to_local_average_cents(self, salience, threshold=0.03):
+    def to_local_average_cents(self, salience, threshold=0.05):
         """
         Decode the RMVPE salience map using local weighted averaging. nothing else...
         """
@@ -117,21 +117,21 @@ class RMVPE(ONNX_Model):
         return cents
     
     def f0_to_coarse(self, f0):
-
         f0_mel = 1127.0 * np.log1p(f0 / 700.0)
 
         f0_mel_min = 1127.0 * np.log1p(50.0 / 700.0)
         f0_mel_max = 1127.0 * np.log1p(1100.0 / 700.0)
 
-        voiced = f0_mel > 0
+        voiced = f0 > 0
+        f0_coarse = np.zeros_like(f0, dtype=np.int64)
 
-        f0_mel[voiced] = (
-            (f0_mel[voiced] - f0_mel_min)
-            * 254
-            / (f0_mel_max - f0_mel_min)
-            + 1
-        )
+        if np.any(voiced):
+            coarse_vals = (
+                (f0_mel[voiced] - f0_mel_min)
+                * 254.0
+                / (f0_mel_max - f0_mel_min)
+                + 1.0
+            )
+            f0_coarse[voiced] = np.clip(np.rint(coarse_vals), 1, 255).astype(np.int64)
 
-        f0_mel = np.clip(f0_mel, 1, 255)
-
-        return np.rint(f0_mel).astype(np.int64)
+        return f0_coarse

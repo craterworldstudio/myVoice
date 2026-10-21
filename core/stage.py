@@ -23,4 +23,14 @@ class Stage:
     def process(self, audio):
         logger.error("Subclasses must implement the process method.")
 
+    def set_parameters(self, **kwargs):
+        raise NotImplementedError
+    
+    def get_parameters(self):
+        raise NotImplementedError
+
+
+    @property
+    def display_name(self):
+        return self.name.replace("_", " ").title()
 

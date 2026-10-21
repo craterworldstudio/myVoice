@@ -188,8 +188,7 @@ class SynthesizerTrn(nn.Module):
             pitch,
             phone_lengths
         )
-        
-        z_p = m_p + torch.randn_like(m_p) * torch.exp(logs_p)
+        z_p = m_p * x_mask
         z = self.flow(
             z_p, x_mask,
             g=g,
@@ -201,23 +200,23 @@ class SynthesizerTrn(nn.Module):
             g=g
         )
 
-        print("m_p", m_p.min(), m_p.max())
-        print("logs_p", logs_p.min(), logs_p.max())
+        #print("m_p", m_p.min(), m_p.max())
+        #print("logs_p", logs_p.min(), logs_p.max())
 
 
 
-        print(
-            "Z:",
-            z.min().item(),
-            z.max().item(),
-            z.mean().item(),
-        )
+        #print(
+        #    "Z:",
+        #    z.min().item(),
+        #    z.max().item(),
+        #    z.mean().item(),
+        #)
 
-        print(
-            "OUT:",
-            o.min().item(),
-            o.max().item(),
-            o.mean().item(),
-        )
+        #print(
+        #    "OUT:",
+        #    o.min().item(),
+        #    o.max().item(),
+        #    o.mean().item(),
+        #)
 
         return o

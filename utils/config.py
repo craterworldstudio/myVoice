@@ -2,24 +2,37 @@ import tomllib
 #import types
 
 class ConfigCategoryNode:
-    pass
+    def __getitem__(self, item):
+        return getattr(self, item)
+
+    def get(self, item, default=None):
+        return getattr(self, item, default)
+
+    def __contains__(self, item):
+        return hasattr(self, item)
+
+
+def _to_config_node(val):
+    if isinstance(val, dict):
+        node = ConfigCategoryNode()
+        for k, v in val.items():
+            setattr(node, k, _to_config_node(v))
+        return node
+    return val
+
 
 class ConfigManager:
 
-    def __init__(self):
-        self.config_data = None
+    def __init__(self, config_path="./config/config.toml"):
+        self.config_path = config_path
+        self.reload()
 
-        with open("./config/config.toml", "rb") as f:
+    def reload(self):
+        with open(self.config_path, "rb") as f:
             self.rconfig_data = tomllib.load(f)
 
-            #print(self.rconfig_data)
-        
-        for catn in self.rconfig_data:
-            section = ConfigCategoryNode()
-            setattr(self, catn, section)
-            for item in self.rconfig_data[catn]:
-                setattr(section, item, self.rconfig_data[catn][item])
+        for catn, content in self.rconfig_data.items():
+            setattr(self, catn, _to_config_node(content))
 
 
 config = ConfigManager()
-#print(config.audio.sample_rate)

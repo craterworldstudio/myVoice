@@ -33,5 +33,5 @@ class Normalizer(Stage):
             # For now, we'll just return the audio unchanged
             return audio
 
-    def set_target_level(self, target_level):
+    def set_parameters(self, target_level):
         self.target_level = target_level

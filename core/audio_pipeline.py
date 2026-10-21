@@ -30,7 +30,6 @@ class AudioPipeline:
         if stage in self.stages:
             stage.enabled = True
             logger.info(f"Stage {stage.name} is Enabled.")
-            
         else:
             logger.error(f"Stage {stage.name} not found in pipeline.")
 
@@ -38,9 +37,9 @@ class AudioPipeline:
         if stage in self.stages:
             stage.enabled = False
             logger.info(f"Stage {stage.name} is disabled.")
-
         else:
             logger.error(f"Stage {stage.name} not found in pipeline.")
+
 
     def process(self, audio):        
         #self.stages.sort(key=lambda obj: self.order[obj.name])

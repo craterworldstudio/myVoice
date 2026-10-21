@@ -19,7 +19,7 @@ class NResampler(Stage):
         self.tsr = tsr
 
         self.AALPF = LowPass(                                  #dont apply, its in the Resampler.
-            cutoff=       config.pipeline.AALP_threshold, 
+            cutoff=       config.dsp.resampler.AALP_threshold, 
             sample_rate=  config.audio.sample_rate,
             anti_aliasing=True
             )     
@@ -69,8 +69,20 @@ class PResampler(Stage):
         self.input_buffer  = np.empty((0, 1), dtype=np.float32)
 
         self.block_size = math.ceil(block_size * csr / tsr)
-        print("Resampler Block Size:", self.block_size)
+        #print("Resampler Block Size:", self.block_size)
         #self.output_buffer = np.empty()
+
+    def set_parameters(self, csr, tsr, block_size):
+        self.csr = csr
+        self.tsr = tsr
+
+        gcd = math.gcd(self.csr, self.tsr)  
+
+        self.down = self.csr//gcd
+        self.up = self.tsr//gcd
+
+        self.block_size = math.ceil(block_size * csr / tsr)
+        self.input_buffer = np.empty((0, 1), dtype=np.float32)
 
     def process(self, audio):
 

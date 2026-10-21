@@ -1,0 +1,180 @@
+- Dynamics
+Noise Gate                  - DONE
+Compressor
+Limiter                     - DONE
+Expander
+Upward Compressor
+Multiband Compressor (future)
+
+- Equalization
+Parametric EQ
+Graphic EQ
+Shelving Filters
+Notch Filter
+Peak Filter
+Presence Filter
+
+- Filters
+High-pass                - DONE
+Low-pass                 - DONE
+Band-pass                - DONE
+Band-stop                - DONE
+Comb Filter
+All-pass
+
+- Saturation
+Soft Clipper             - DONE
+Hard Clipper             - DONE
+Tube Saturation
+Tape Saturation
+Wave Shaping
+
+- Spatial
+Delay
+Reverb
+Early Reflections
+Stereo Width
+Haas Effect
+
+- Modulation
+Chorus
+Flanger
+Phaser
+Tremolo
+Vibrato
+Ring Modulation
+
+- Utility
+Resampler                          - DONE
+Normalizer                         - DONE
+DC Offset Removal
+RMS Meter
+Peak Meter
+LUFS Meter
+Silence Detector
+
+
+
+DSP Voice Effects - 
+High-pass filtering
+Pitch shifting
+Formant shifting
+Spectral tilt adjustment
+Presence EQ
+Dynamic EQ
+Harmonic enhancement
+De-essing
+Compression
+Soft limiting
+
+
+Band-pass filter
+Telephone frequency response
+Tube saturation
+Soft clipping
+Vintage EQ
+Compression
+Optional room convolution
+Wow/flutter modulation
+Hum generation
+Vinyl crackle
+Static noise
+Optional stereo widening
+
+
+Advance DSP 
+
+Phase vocoder
+WSOLA time stretching
+SOLA algorithms
+Granular synthesis
+LPC experimentation
+Source-filter vocal processing
+Spectral processing
+FFT-based effects
+Adaptive noise reduction
+
+
+
+
+
+
+CURRENT ORDER --------
+
+| Priority    | Stage                | Why now?                                                   |
+| ------------| ---------------------|----------------------------------------------------------- |
+|    ★★★★★  | Compressor           | Used in almost every vocal chain.                          |
+|    ★★★★★  | Parametric EQ        | The foundation for vocal shaping and almost all other EQs. |
+|    ★★★★☆  | Peak Filter          | Building block for a parametric EQ.                        |
+|    ★★★★☆  | Shelving Filters     | Used constantly for voice tone shaping.                    |
+|    ★★★★☆  | DC Offset Removal    | Tiny implementation, useful everywhere.                    |
+|    ★★★★☆  | RMS / Peak Meter     | Essential for debugging and tuning DSP.                    |
+|    ★★★☆☆  | Presence Filter      | Useful once EQ exists.                                     |
+|    ★★★☆☆  | Comb Filter          | Needed for flanger and some reverbs.                       |
+|    ★★★☆☆  | Delay                | Foundation for many spatial/modulation effects.            |
+|    ★★★☆☆  | All-pass Filter      | Needed later for phasers and reverbs.                      |
+
+
+
+Microphone
+↓
+Input Gain (optional)
+↓
+DC Offset Removal
+↓
+High-Pass Filter
+↓
+Noise Gate / Expander
+↓
+Compressor / Upward Compressor
+↓
+Peak Limiter (optional)
+↓
+Equalization
+    ├── Parametric EQ
+    ├── Peak Filter
+    ├── Notch Filter
+    ├── Shelving Filters
+    └── Presence Filter
+↓
+Pitch Processing
+    ├── Pitch Shift
+    ├── Formant Shift
+    └── Time Stretch
+↓
+Saturation
+    ├── Tube
+    ├── Tape
+    ├── Waveshaper
+    ├── Soft Clip
+    └── Hard Clip
+↓
+Modulation
+    ├── Tremolo
+    ├── Vibrato
+    ├── Chorus
+    ├── Flanger
+    ├── Phaser
+    └── Ring Mod
+↓
+Spatial
+    ├── Haas
+    ├── Stereo Width
+    ├── Delay
+    ├── Early Reflections
+    └── Reverb
+↓
+Resampler
+    (only when required)
+↓
+AI Modules
+    ├── RVC
+    ├── Voice Enhancement
+    ├── Noise Suppression
+    └── Future Models
+↓
+Output Limiter
+↓
+Output Normalizer (optional)
+↓
+Speaker

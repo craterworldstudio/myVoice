@@ -26,7 +26,9 @@ class Scheduler:
         self.thread.start()
 
     def stop(self):
-        self.thread.join()
+        if self.thread and self.thread.is_alive():
+            self.thread.join(timeout=1.0)
+        self.thread = None
 
     def run(self):
         logger.info("Scheduler Running!")

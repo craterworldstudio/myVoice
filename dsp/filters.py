@@ -31,7 +31,7 @@ class HighPass(Stage):
 
         return filtered
     
-    def set_cutoff(self, cutoff):
+    def set_parameters(self, cutoff):
         self.cutoff = cutoff
 
         self.alpha = self.calculate_alpha()
@@ -44,7 +44,7 @@ class HighPass(Stage):
 class LowPass(Stage):
     def __init__(self, cutoff, sample_rate, anti_aliasing:bool=False):
         name = "low_pass" if not anti_aliasing else "aalp"
-        super().__init__("low_pass")
+        super().__init__(name)
         self.cutoff = cutoff
         self.sample_rate = sample_rate
 
@@ -67,7 +67,7 @@ class LowPass(Stage):
                
         return filtered
 
-    def set_cutoff(self, cutoff):
+    def set_parameters(self, cutoff):
         self.cutoff = cutoff
         self.alpha = self.calculate_alpha()
 
@@ -83,6 +83,10 @@ class BandPass(Stage):
         self.hpf = HighPass(low_cutoff, sample_rate)
         self.lpf = LowPass(high_cutoff, sample_rate)
 
+    def set_parameters(self, high_cutoff, low_cutoff):
+        self.hpf.set_parameters(low_cutoff)
+        self.lpf.set_parameters(high_cutoff)
+
     def process(self, audio):
         # Series routing: Audio -> HPF -> LPF -> Output
         hpf_filtered = self.hpf.process(audio)
@@ -95,6 +99,10 @@ class BandStop(Stage):
         super().__init__("band_stop")
         self.lpf = LowPass(low_cutoff, sample_rate)  
         self.hpf = HighPass(high_cutoff, sample_rate)
+
+    def set_parameters(self, high_cutoff, low_cutoff):
+        self.lpf.set_parameters(low_cutoff)
+        self.hpf.set_parameters(high_cutoff)
 
     def process(self, audio):
         low_part = self.lpf.process(audio)

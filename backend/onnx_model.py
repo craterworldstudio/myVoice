@@ -1,13 +1,37 @@
+import os
+import sys
+import ctypes
 import numpy as np
 import onnxruntime as ort
 import torch
 from torch.nn import functional as F
+from utils.logger import logger
+
+# Suppress harmless MIOpen HIP kernel fallback warnings
+os.environ.setdefault("MIOPEN_LOG_LEVEL", "4")
+
+_ROCM_LIBS_PRELOADED = False
+
+def preload_rocm_libs():
+    global _ROCM_LIBS_PRELOADED
+    if _ROCM_LIBS_PRELOADED:
+        return
+    try:
+        torch_lib_dir = os.path.join(os.path.dirname(torch.__file__), "lib")
+        for lib in ["libhipfft.so", "libMIOpen.so"]:
+            lib_path = os.path.join(torch_lib_dir, lib)
+            if os.path.exists(lib_path):
+                ctypes.CDLL(lib_path, mode=ctypes.RTLD_GLOBAL)
+        _ROCM_LIBS_PRELOADED = True
+    except Exception as e:
+        logger.warning(f"Could not preload ROCm libraries: {e}")
 
 class ONNX_Model:
     def __init__(self, path):
-        providers = []
+        preload_rocm_libs()
 
         available = ort.get_available_providers()
+        providers = []
 
         if "ROCMExecutionProvider" in available:
             providers.append("ROCMExecutionProvider")
@@ -18,6 +42,7 @@ class ONNX_Model:
             path,
             providers=providers
         )
+
 
         self.inputs = self.session.get_inputs()
         self.outputs = self.session.get_outputs()

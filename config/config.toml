@@ -1,6 +1,6 @@
 [audio]
 sample_rate = 48000
-block_size = 1024
+block_size = 960
 Rbuffer_size = 32
 
 
@@ -16,47 +16,66 @@ console_logging = true
 
 [pipeline]
 stages = [
-    "normalizerF",
+    "gain",
     "high_pass",
     "low_pass",
     "noisegate",
-    
-    "gain",
-
-    "aalp",
-    "limiter",
-    "normalizerB",
-    "presamplerF",
+    "Compressor",
+    "radio_effect",
+    "formant_shifter",
     "rvc",
-    "presamplerB"
+    "limiter",
 ]
-gain = 1.7782794
 
-hpf_cutoff = 120
-lpf_cutoff = 60000
 
-limiter_threshold = 0.70794576
-limiter_drive = 0.6
-limiter_mode = "Soft"
+[dsp]
 
-noisegate_threshold = 0.01
-noisegate_attack = 0.015
-noisegate_release = 0.125
+[dsp.gain]
+gain = 1.0
 
-normalizer_threshold_f = 0.7
-normalizer_mode_f = "rms"
-normalizer_threshold_b = 0.7
-normalizer_mode_b = "rms"
+[dsp.filters]
 
+[dsp.filters.hpf]
+cutoff = 65
+
+[dsp.filters.lpf]
+cutoff = 16000
+
+[dsp.limiter]
+threshold = 0.85
+drive = 0.4
+mode = "soft"
+
+[dsp.noisegate]
+threshold = 0.015
+attack = 0.005
+release = 0.150
+
+[dsp.normalizer]
+threshold_f = 0.7
+mode_f = "rms"
+threshold_b = 0.7
+mode_b = "rms"
+
+[dsp.resampler]
 AALP_threshold = 15500
 rspl_target = 16000
 
+[dsp.compressor]
+threshold = 0.40
+ratio = 3.5
+attack  = 0.01
+release = 0.10
+
+
 
 [rvc]
-model      = "./models/alastor/alastor.pth"
-index      = "./models/alastor/alastor.index"
-vec        = "./models/vec-768-layer-12.onnx"
-rmvpe_onnx = "./models/rmvpe.onnx"
-rmvpe_pt   = "./models/rmvpe.pt"
-pitch      = 0
-use_onnx   = true
+model        = "./models/xiaomu/xiaomu.pth"
+index        = "./models/xiaomu/xiaomu.index"
+vec          = "./models/vec-768-layer-12.onnx"
+rmvpe_onnx   = "./models/rmvpe.onnx"
+rmvpe_pt     = "./models/rmvpe.pt"
+pitch        = 0
+use_onnx     = true
+hop_size     = 3840
+context_size = 2560

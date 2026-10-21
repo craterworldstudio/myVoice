@@ -50,7 +50,7 @@ class ResBlock1(nn.Module):
             xt = F.leaky_relu(xt, 0.1)
             xt = conv2(xt)
 
-            x += xt
+            x = xt + x
         
         return x
     

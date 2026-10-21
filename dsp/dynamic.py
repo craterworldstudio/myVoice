@@ -15,6 +15,14 @@ class Limiter(Stage):
         self.drive = drive if drive is not None else self.drive
         self.mode = self.modes[0] if mode == None else mode
 
+    def get_parameters(self):
+
+        return {
+            "threshold": self.threshold,
+            "mode": self.mode,
+            "drive": self.drive
+        }
+
     def process(self, audio):
         # Apply limiting to the audio signal
 
@@ -38,12 +46,9 @@ class Limiter(Stage):
 
             """
             filtered = np.zeros_like(audio)
-            for sample in range(len(audio)):
-                x = audio[sample, 0]
-
-                y = math.tanh((x/self.threshold) * self.drive) * self.threshold
-
-                filtered[sample, 0] = y
+            filtered = np.tanh(
+                (audio/self.threshold) * self.drive
+            ) * self.threshold
             
            
             return filtered
@@ -53,7 +58,7 @@ class Limiter(Stage):
 
 
 class NoiseGate(Stage):
-    def __init__(self, threshold=1.0, rls = 0.015, atk = 0.03, samplerate=48000, blocksize=1024):
+    def __init__(self, threshold=0.035, rls = 0.125, atk = 0.015, samplerate=48000, blocksize=1024):
         super().__init__("noisegate")
         self.threshold = threshold
         self.attack = atk
@@ -64,19 +69,73 @@ class NoiseGate(Stage):
         self.release_counter = 0
         
         self.gain = 1.0
-        self.block_duration = blocksize/samplerate
+        self.previous_gain = 1.0
+        self.block_duration = blocksize / samplerate
 
+        self.recompute_steps()
+
+    def recompute_steps(self):
         self.attack_blocks = max(1, math.ceil(self.attack / self.block_duration))
         self.release_blocks = max(1, math.ceil(self.release / self.block_duration))
+        self.attack_step = 1.0 / self.attack_blocks
+        self.release_step = 1.0 / self.release_blocks
+
+    def set_parameters(self, threshold=None, atk=None, rls=None, samplerate=None):
+        if threshold is not None: self.threshold = threshold
+        if atk is not None: self.attack = atk
+        if rls is not None: self.release = rls
+        if samplerate is not None:
+            self.sample_rate = samplerate
+            self.block_duration = getattr(config.audio, "block_size", 960) / self.sample_rate
+
+        self.attack_counter = 0
+        self.release_counter = 0
+        self.recompute_steps()
+
+    def process(self, audio):
+        rms = math.sqrt(np.mean(audio[:, 0] ** 2))
+        
+        if rms >= self.threshold:
+            self.release_counter = 0
+            self.gain = 1.0
+        else:
+            self.release_counter += 1
+            if self.release_counter >= self.release_blocks:
+                self.gain = max(0.0, self.gain - self.release_step)
+        
+        gain_curve = np.linspace(self.previous_gain, self.gain, len(audio), dtype=audio.dtype)
+
+        audio[:, 0] *= gain_curve
+        self.previous_gain = self.gain
+
+        return audio
+
+
+class Compressor(Stage):
+    def __init__(self, threshold, atk, rls, ratiou, samplerate=48000, blocksize=1024):
+        super().__init__("Compressor")
+
+        self.threshold = threshold
+        self.attack = atk
+        self.release = rls
+
+        self.gain = 1.0
+        self.previous_gain = 1.0
+        self.ratiou = ratiou
+
+        self.block_duration = blocksize/samplerate
+
+
+        self.attack_blocks = math.ceil(self.attack / self.block_duration)
+        self.release_blocks = math.ceil(self.release / self.block_duration)
 
         self.attack_step = 1/self.attack_blocks
         self.release_step = 1/self.release_blocks
 
 
-    def set_threshold(self, threshold):
-        self.threshold = threshold 
-
-    def set_parameters(self, atk, rls, samplerate):
+    def set_parameters(self,threshold, ratiou, atk, rls, samplerate):
+        self.threshold = threshold
+        self.ratiou = ratiou
         self.attack = atk
         self.release = rls
         self.sample_rate = samplerate
@@ -91,23 +150,37 @@ class NoiseGate(Stage):
         self.release_step = 1/self.release_blocks
 
     def process(self, audio):
-        rms = math.sqrt(np.mean(audio[:, 0] ** 2))
-        
-        if rms > self.threshold:
-            self.attack_counter += 1
-            self.release_counter = 0
+        rms = math.sqrt(np.mean(audio[:, 0] ** 2)) 
 
-        if self.attack_counter >= self.attack_blocks:
-            self.gain = min(1.0, self.gain + self.attack_step)
+        if rms <= self.threshold:
+            ngain = 1.0
+
+        else:
+            comped_lvl = self.threshold + ((rms-self.threshold)/self.ratiou)
+
+            ngain = comped_lvl/rms 
+
+        if ngain < self.gain:
             
-        if rms < self.threshold:
-            self.release_counter += 1
-            self.attack_counter = 0
+            difference = self.gain - ngain
+            self.gain -= difference * self.attack_step
 
+            if self.gain < ngain:
+                self.gain = ngain
+
+        else:
             
+            difference = ngain - self.gain 
+            self.gain += difference * self.release_step
 
-        if self.release_counter >= self.release_blocks:
-            self.gain = max(0.0, self.gain - self.release_step)
+
+            if self.gain > ngain:
+                self.gain = ngain
         
-        return audio * self.gain
-        #return np.zeros_like(audio)
+        gain_curve = np.linspace(self.previous_gain, self.gain, len(audio), dtype=audio.dtype)
+        audio[:, 0] *= gain_curve
+
+        self.previous_gain = self.gain
+
+        return audio
+    

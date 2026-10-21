@@ -10,23 +10,23 @@ class FeatureExtractor(ONNX_Model):
         self.device = device
         
         
-    #@torch.no_grad()
     def extract(self, audio):
         audio = np.asarray(audio, dtype=np.float32)
 
         if audio.ndim == 2 and audio.shape[1] == 1:
             audio = audio.squeeze(1)
 
+        # Pad symmetrically by 160 samples on both ends so ContentVec convolutional
+        # receptive field outputs exact time-aligned frames (100 Hz / 10ms per frame)
+        audio = np.pad(audio, (160, 160), mode="reflect")
+
         audio = audio[None, None, :]
-        #print("ContentVec Input:", audio.shape)
         output = self.session.run(
             self.output_names,
             {
                 self.input_names[0]: audio
             }
         )[0]
-        #print("RAW Convec Feature Output: ",output.shape)
         output = np.repeat(output, 2, axis=1)
-        #print("RAW Convec Feature Output (2x): ",output.shape)
 
         return output

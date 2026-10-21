@@ -45,8 +45,10 @@ class Logger:
         name = f"{datetime.date.today()}_{time.time()}"
         if self.logging:
             self.c_file = open(f"{self.log_Dir}/{name}.log", "a+")
+        if self.logging or self.console_logging:
             self.opened = True
         self.info("------------------------------Log File Starting------------------------------")
+
 
     def info(self, Iptinfo):
         self._write("INFO", Iptinfo)
